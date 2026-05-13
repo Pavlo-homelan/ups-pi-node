@@ -270,3 +270,23 @@ JavaScript обновляет элементы по `data-live`:
 - выбор и подгрузка CSS: `app/static/js/theme.js`;
 - установка и хранение ZIP-пакетов: `app/services/widgets.py`;
 - маршруты установки, удаления и выдачи файлов пакета: `app/routes.py`.
+
+## Dashboard Widgets
+
+The main dashboard has its own removable widgets. They are managed on the
+`System` page in the `Dashboard widgets` block.
+
+Built-in dashboard widgets:
+
+- `ups-main`: the current skin-based UPS card that uses the ZIP widget CSS.
+- `ups-overview`: a wider UPS overview card inspired by the initial `rpi2w-ups`
+  battery panel.
+- `cpu-temp`: CPU temperature.
+- `ram-usage`: RAM usage.
+- `wifi-status`: local UI Wi-Fi status. It is not included in Zabbix or Home
+  Assistant integration metrics.
+
+The `ups-overview` widget uses a separate template:
+`app/templates/_dashboard_widget_ups_overview.html`. It is intentionally
+separate from `app/templates/_ups_card_widget.html`, so it can be removed or
+changed without affecting ZIP-based UPS widget skins.

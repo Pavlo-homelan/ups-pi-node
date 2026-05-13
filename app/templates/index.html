@@ -13,6 +13,8 @@
             {# Rollback: replace this include with "_ups_card_legacy.html". #}
             {% set data = dashboard_widget.data %}
             {% include "_ups_card_widget.html" %}
+        {% elif dashboard_widget.kind == "ups_overview" %}
+            {% include "_dashboard_widget_ups_overview.html" %}
         {% elif dashboard_widget.kind == "sensor_cpu" %}
             {% include "_dashboard_widget_sensor.html" %}
         {% elif dashboard_widget.kind == "sensor_ram" %}

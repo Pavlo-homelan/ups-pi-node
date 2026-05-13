@@ -19,6 +19,39 @@ function stateLabel(state) {
     return t(`ups.state.${state}`, state);
 }
 
+function normalizedKey(value) {
+    return String(value || '').toLowerCase();
+}
+
+function batteryStatusLabel(status) {
+    const key = normalizedKey(status);
+    return t(`ups.battery_status.${key}`, status || t('ups.battery_status.unknown', 'Unknown'));
+}
+
+function directionLabel(direction) {
+    const key = normalizedKey(direction);
+    return t(`ups.direction.${key}`, direction || '');
+}
+
+function overviewSummary(data) {
+    const direction = normalizedKey(data.battery_direction);
+    const status = normalizedKey(data.battery_status);
+
+    if (data.ac && direction === 'charging') {
+        return t('ups.summary.charging', 'Battery is charging from external power');
+    }
+    if (!data.ac && direction === 'discharging') {
+        return t('ups.summary.discharging', 'Battery is powering the load');
+    }
+    if (status === 'full') {
+        return t('ups.summary.full', 'Battery is fully charged');
+    }
+    if (status === 'critical') {
+        return t('ups.summary.critical', 'Power needs attention and fast charging');
+    }
+    return t('ups.summary.stable', 'Battery state is stable');
+}
+
 async function updateData() {
     const title = document.getElementById('status-title');
     const hasLiveTargets = document.querySelector('[data-live]') || document.getElementById('battery-bar');
@@ -54,6 +87,11 @@ async function updateData() {
             element.style.setProperty('--battery-color', data.color);
         }
 
+        for (const pill of document.querySelectorAll('[data-battery-status-pill]')) {
+            const statusClass = normalizedKey(data.battery_status) || 'unknown';
+            pill.className = `ups-overview-pill battery-status-${statusClass}`;
+        }
+
         const batteryPercent = document.getElementById('battery-percent-widget');
         if (batteryPercent) {
             batteryPercent.innerText = data.percent + '%';
@@ -75,12 +113,21 @@ async function updateData() {
         const liveValues = {
             state: statusText,
             ac: data.ac ? t('ups.ac_ok', 'AC OK') : t('ups.ac_lost', 'AC LOST'),
+            'battery-status': batteryStatusLabel(data.battery_status),
             percent: data.percent + '%',
             voltage: Number(data.v).toFixed(2) + 'V',
             current: Number(data.i).toFixed(0) + 'mA',
             cpu: Number(data.cpu_temp).toFixed(1),
             'cpu-full': `${Number(data.cpu_temp).toFixed(1)}°C`,
             ram: `${Number(data.ram_used).toFixed(1)}MB (${Number(data.ram_percent).toFixed(1)}%)`,
+            'overview-current': data.current_label || `${Number(data.i).toFixed(0)}mA`,
+            'overview-direction': directionLabel(data.battery_direction),
+            'overview-load': data.ac ? t('ups.load.line', 'UPS output') : t('ups.load.battery', 'Battery load'),
+            'overview-mains': data.ac ? t('ups.mains.online', '220 V online') : t('ups.mains.lost', '220 V lost'),
+            'overview-mode': data.ac ? t('ups.mode.line', 'Line mode') : t('ups.mode.backup', 'Battery backup'),
+            'overview-power': data.power_label || '',
+            'overview-route': data.ac ? t('ups.route.charger', 'Battery to charger') : t('ups.route.load', 'Battery to load'),
+            'overview-summary': overviewSummary(data),
             'wifi-ssid': data.connected_ssid_label || '',
             'portal-mode': data.portal_mode_label || '',
             'wifi-ip': data.ip_address_label || ''

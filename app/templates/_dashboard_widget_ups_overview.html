@@ -1,0 +1,58 @@
+{% set overview = dashboard_widget.overview %}
+<div class="card ups-overview-widget" data-dashboard-widget="{{ dashboard_widget.id }}" style="--battery-level: {{ overview.percent }}%; --battery-color: {{ overview.color }};">
+    <div class="ups-overview-head">
+        <div>
+            <span class="ups-overview-kicker">{{ t("ups.overview.kicker") }}</span>
+            <h2>{{ t("ups.overview.title") }}</h2>
+        </div>
+        <span class="ups-overview-pill battery-status-{{ overview.status_class }}" data-battery-status-pill data-live="battery-status">{{ t(overview.status_key) }}</span>
+    </div>
+
+    <div class="ups-overview-main">
+        <div class="ups-overview-charge">
+            <span>{{ t("ups.overview.charge") }}</span>
+            <strong data-live="percent">{{ overview.percent }}%</strong>
+            <small data-live="overview-direction">{{ t(overview.direction_key) }}</small>
+        </div>
+
+        <div class="ups-overview-topline">
+            <div>
+                <span>{{ t("ups.overview.mode") }}</span>
+                <strong data-live="overview-mode">{{ t(overview.mode_key) }}</strong>
+            </div>
+            <div>
+                <span>{{ t("ups.voltage") }}</span>
+                <strong data-live="voltage">{{ overview.voltage }}</strong>
+            </div>
+            <div>
+                <span>{{ t("ups.power") }}</span>
+                <strong data-live="overview-power">{{ overview.power }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="ups-overview-meter" aria-label="{{ t('ups.overview.charge') }}">
+        <div class="ups-overview-meter-fill"></div>
+    </div>
+
+    <p class="ups-overview-summary" data-live="overview-summary">{{ t(overview.summary_key) }}</p>
+
+    <div class="ups-overview-metrics">
+        <div class="ups-overview-metric">
+            <span>{{ t("ups.overview.mains") }}</span>
+            <strong data-live="overview-mains">{{ t(overview.mains_key) }}</strong>
+        </div>
+        <div class="ups-overview-metric">
+            <span>{{ t("ups.current") }}</span>
+            <strong data-live="overview-current">{{ overview.current }}</strong>
+        </div>
+        <div class="ups-overview-metric">
+            <span>{{ t("ups.overview.load") }}</span>
+            <strong data-live="overview-load">{{ t(overview.load_key) }}</strong>
+        </div>
+        <div class="ups-overview-metric">
+            <span>{{ t("ups.overview.route") }}</span>
+            <strong data-live="overview-route">{{ t(overview.route_key) }}</strong>
+        </div>
+    </div>
+</div>

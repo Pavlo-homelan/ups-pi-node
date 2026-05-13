@@ -139,6 +139,46 @@ def build_card_status_payload(ups_snapshot=None):
     }
 
 
+def build_ups_overview_payload(ups_snapshot=None, card_data=None):
+    snapshot = ups_snapshot or get_ups_manager().get_snapshot()
+    data = card_data or build_card_status_payload(snapshot)
+    status = str(snapshot.battery_status or "").lower()
+    direction = snapshot.battery_direction
+
+    if snapshot.mains_present and direction == "Charging":
+        summary_key = "ups.summary.charging"
+    elif not snapshot.mains_present and direction == "Discharging":
+        summary_key = "ups.summary.discharging"
+    elif snapshot.battery_status == "Full":
+        summary_key = "ups.summary.full"
+    elif snapshot.battery_status == "Critical":
+        summary_key = "ups.summary.critical"
+    else:
+        summary_key = "ups.summary.stable"
+
+    direction_keys = {
+        "Charging": "ups.direction.charging",
+        "Discharging": "ups.direction.discharging",
+        "Idle": "ups.direction.idle",
+    }
+
+    return {
+        "percent": snapshot.battery_percent,
+        "color": data["color"],
+        "status_class": status or "unknown",
+        "status_key": f"ups.battery_status.{status}" if status else "ups.battery_status.unknown",
+        "direction_key": direction_keys.get(direction, "ups.direction.idle"),
+        "mode_key": "ups.mode.line" if snapshot.mains_present else "ups.mode.backup",
+        "mains_key": "ups.mains.online" if snapshot.mains_present else "ups.mains.lost",
+        "load_key": "ups.load.line" if snapshot.mains_present else "ups.load.battery",
+        "route_key": "ups.route.charger" if snapshot.mains_present else "ups.route.load",
+        "summary_key": summary_key,
+        "voltage": snapshot.voltage_label,
+        "current": snapshot.current_label,
+        "power": snapshot.power_label,
+    }
+
+
 def build_live_status_payload():
     ups_snapshot = get_ups_manager().get_snapshot()
     portal_status = get_wifi_manager().get_status()
@@ -182,6 +222,11 @@ def build_dashboard_widget_payloads(base_context):
         item = dict(widget)
         if item["kind"] == "ups":
             item["data"] = data
+        elif item["kind"] == "ups_overview":
+            item["overview"] = build_ups_overview_payload(
+                base_context["ups_snapshot"],
+                data,
+            )
         elif item["kind"] == "sensor_cpu":
             item["value"] = get_cpu_temp_label()
             item["live_key"] = "cpu-full"

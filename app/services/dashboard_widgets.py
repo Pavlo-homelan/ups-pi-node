@@ -9,6 +9,11 @@ DASHBOARD_WIDGET_DEFINITIONS = {
         "kind": "ups",
         "label_key": "dashboard.widget.ups",
     },
+    "ups-overview": {
+        "id": "ups-overview",
+        "kind": "ups_overview",
+        "label_key": "dashboard.widget.ups_overview",
+    },
     "cpu-temp": {
         "id": "cpu-temp",
         "kind": "sensor_cpu",

@@ -200,6 +200,77 @@ TRANSLATIONS = {
 }
 
 
+TRANSLATIONS["uk"].update(
+    {
+        "dashboard.widget.ups_overview": "Огляд UPS",
+        "ups.overview.kicker": "Батарея",
+        "ups.overview.title": "Стан батареї",
+        "ups.overview.charge": "Заряд",
+        "ups.overview.mode": "Режим",
+        "ups.overview.mains": "Мережа 220 В",
+        "ups.overview.load": "Навантаження",
+        "ups.overview.route": "Маршрут батареї",
+        "ups.battery_status.full": "Повна",
+        "ups.battery_status.high": "Висока",
+        "ups.battery_status.medium": "Середня",
+        "ups.battery_status.low": "Низька",
+        "ups.battery_status.critical": "Критична",
+        "ups.battery_status.unknown": "Невідомо",
+        "ups.direction.charging": "Заряджання",
+        "ups.direction.discharging": "Розряджання",
+        "ups.direction.idle": "Очікування",
+        "ups.mode.line": "Лінійний режим",
+        "ups.mode.backup": "Резерв від батареї",
+        "ups.mains.online": "220 В онлайн",
+        "ups.mains.lost": "220 В втрачено",
+        "ups.load.line": "UPS-вихід",
+        "ups.load.battery": "Батарея",
+        "ups.route.charger": "Батарея на заряджання",
+        "ups.route.load": "Батарея на навантаження",
+        "ups.summary.charging": "Батарея заряджається від зовнішнього живлення.",
+        "ups.summary.discharging": "Батарея живить навантаження.",
+        "ups.summary.full": "Батарея повністю заряджена.",
+        "ups.summary.critical": "Живлення потребує уваги та швидкого заряджання.",
+        "ups.summary.stable": "Стан батареї стабільний.",
+    }
+)
+
+TRANSLATIONS["en"].update(
+    {
+        "dashboard.widget.ups_overview": "UPS overview",
+        "ups.overview.kicker": "Battery",
+        "ups.overview.title": "Battery status",
+        "ups.overview.charge": "Charge",
+        "ups.overview.mode": "Mode",
+        "ups.overview.mains": "220 V mains",
+        "ups.overview.load": "Load",
+        "ups.overview.route": "Battery route",
+        "ups.battery_status.full": "Full",
+        "ups.battery_status.high": "High",
+        "ups.battery_status.medium": "Medium",
+        "ups.battery_status.low": "Low",
+        "ups.battery_status.critical": "Critical",
+        "ups.battery_status.unknown": "Unknown",
+        "ups.direction.charging": "Charging",
+        "ups.direction.discharging": "Discharging",
+        "ups.direction.idle": "Idle",
+        "ups.mode.line": "Line mode",
+        "ups.mode.backup": "Battery backup",
+        "ups.mains.online": "220 V online",
+        "ups.mains.lost": "220 V lost",
+        "ups.load.line": "UPS output",
+        "ups.load.battery": "Battery",
+        "ups.route.charger": "Battery to charger",
+        "ups.route.load": "Battery to load",
+        "ups.summary.charging": "Battery is charging from external power.",
+        "ups.summary.discharging": "Battery is powering the load.",
+        "ups.summary.full": "Battery is fully charged.",
+        "ups.summary.critical": "Power needs attention and fast charging.",
+        "ups.summary.stable": "Battery state is stable.",
+    }
+)
+
+
 def normalize_language(language):
     return language if language in SUPPORTED_LANGUAGES else DEFAULT_LANGUAGE
 
@@ -224,5 +295,27 @@ def client_translations(language):
         "ups.state.IDLE",
         "ups.ac_ok",
         "ups.ac_lost",
+        "ups.battery_status.full",
+        "ups.battery_status.high",
+        "ups.battery_status.medium",
+        "ups.battery_status.low",
+        "ups.battery_status.critical",
+        "ups.battery_status.unknown",
+        "ups.direction.charging",
+        "ups.direction.discharging",
+        "ups.direction.idle",
+        "ups.mode.line",
+        "ups.mode.backup",
+        "ups.mains.online",
+        "ups.mains.lost",
+        "ups.load.line",
+        "ups.load.battery",
+        "ups.route.charger",
+        "ups.route.load",
+        "ups.summary.charging",
+        "ups.summary.discharging",
+        "ups.summary.full",
+        "ups.summary.critical",
+        "ups.summary.stable",
     )
     return {key: translate(normalized, key) for key in keys}
