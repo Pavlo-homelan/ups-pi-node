@@ -1,0 +1,17 @@
+[Unit]
+Description=rpi2w portal system helper
+After=NetworkManager.service
+Wants=NetworkManager.service
+
+[Service]
+Type=simple
+Environment="RPI2W_SYSTEM_HELPER_SOCKET=/run/rpi2w-portal/helper.sock"
+EnvironmentFile=-/etc/default/rpi2w-portal
+RuntimeDirectory=rpi2w-portal
+RuntimeDirectoryMode=0755
+ExecStart=/srv/rpi2w-ups-portal/.venv/bin/python /srv/rpi2w-ups-portal/system_helper.py --socket ${RPI2W_SYSTEM_HELPER_SOCKET} --socket-group www-data
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

@@ -3,7 +3,7 @@ import platform
 
 
 class Config:
-    SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-production")
+    SECRET_KEY = os.getenv("SECRET_KEY") or os.getenv("RPI2W_SECRET_KEY")
     SESSION_COOKIE_NAME = "rpi2w_portal"
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
@@ -14,8 +14,9 @@ class Config:
 
     WIFI_BACKEND = os.getenv(
         "RPI2W_WIFI_BACKEND",
-        "nmcli" if platform.system().lower() == "linux" else "mock",
+        "helper" if platform.system().lower() == "linux" else "mock",
     )
+    SYSTEM_HELPER_SOCKET = os.getenv("RPI2W_SYSTEM_HELPER_SOCKET", "/run/rpi2w-portal/helper.sock")
     WIFI_INTERFACE = os.getenv("RPI2W_WIFI_INTERFACE", "wlan0")
     HOTSPOT_CONNECTION_NAME = os.getenv("RPI2W_HOTSPOT_CONNECTION_NAME", "rpi2w-hotspot")
     HOTSPOT_SSID = os.getenv("RPI2W_HOTSPOT_SSID", "rpi2w-setup")

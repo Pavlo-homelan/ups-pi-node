@@ -3,9 +3,11 @@ config.py                                    srv/rpi2w-ups-portal/
 wsgi.py                                      srv/rpi2w-ups-portal/
 gunicorn.conf.py                             srv/rpi2w-ups-portal/
 requirements.txt                             srv/rpi2w-ups-portal/
+system_helper.py                             srv/rpi2w-ups-portal/
 deploy/etc/main.conf.example                 etc/rpi2w-portal/
 deploy/nginx/flask_site.conf                 etc/nginx/sites-available/rpi2w-ups-portal
 deploy/systemd/flask_site.service            lib/systemd/system/
+deploy/systemd/rpi2w-system-helper.service   lib/systemd/system/
 deploy/systemd/rpi2w-hotspot-fallback.service lib/systemd/system/
 deploy/systemd/rpi2w-hotspot-fallback.timer  lib/systemd/system/
 deploy/scripts/rpi2w-hotspot-fallback.sh     usr/local/bin/

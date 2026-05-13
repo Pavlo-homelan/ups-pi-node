@@ -7,6 +7,10 @@
 timeout_1 = 30
 timeout_2 = 300
 
+[system]
+# Unix socket root-helper-а для системных задач
+helper_socket = /run/rpi2w-portal/helper.sock
+
 [gpio]
 # GPIO пины (BCM-нумерация)
 # Заполняется после ревизии платы
@@ -18,8 +22,8 @@ relay_4_pin = 8
 load_enable_pin = 7
 
 [wifi]
-# Бэкенд: mock | nmcli
-backend = nmcli
+# Бэкенд: mock | helper
+backend = helper
 interface = wlan0
 hotspot_connection = rpi2w-hotspot
 hotspot_ssid = rpi2w-setup

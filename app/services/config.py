@@ -18,11 +18,11 @@ class ConfigManager:
 
     def load(self):
         if os.path.exists(self.config_path):
-            self._parser.read(self.config_path)
+            self._parser.read(self.config_path, encoding="utf-8")
 
     def save(self):
         os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
-        with open(self.config_path, "w") as f:
+        with open(self.config_path, "w", encoding="utf-8") as f:
             self._parser.write(f)
 
     def get(self, section, key, fallback=None):
@@ -48,6 +48,12 @@ class ConfigManager:
     @property
     def load_timeout_2(self):
         return self.getint("load", "timeout_2", fallback=300)
+
+    # --- system helper ---
+
+    @property
+    def system_helper_socket(self):
+        return self.get("system", "helper_socket", fallback="/run/rpi2w-portal/helper.sock")
 
     # --- gpio ---
 

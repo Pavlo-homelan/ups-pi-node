@@ -3,6 +3,7 @@ set -e
 
 APP_DIR="/srv/rpi2w-ups-portal"
 CONF_DIR="/etc/rpi2w-portal"
+ENV_FILE="/etc/default/rpi2w-portal"
 VENV_DIR="$APP_DIR/.venv"
 
 case "$1" in
@@ -10,22 +11,41 @@ case "$1" in
         # Создать директорию конфига
         mkdir -p "$CONF_DIR"
 
+        # Создать environment-файл с уникальным Flask secret key
+        if [ ! -f "$ENV_FILE" ]; then
+            secret_key="$(python3 -c 'import secrets; print(secrets.token_urlsafe(48))')"
+            old_umask="$(umask)"
+            umask 077
+            printf 'SECRET_KEY=%s\n' "$secret_key" > "$ENV_FILE"
+            umask "$old_umask"
+            chown root:www-data "$ENV_FILE"
+            chmod 640 "$ENV_FILE"
+            echo "Создан environment-файл: $ENV_FILE"
+        fi
+
         # Скопировать пример конфига если основной отсутствует
         if [ ! -f "$CONF_DIR/main.conf" ]; then
             cp "$CONF_DIR/main.conf.example" "$CONF_DIR/main.conf"
-            chmod 640 "$CONF_DIR/main.conf"
+            chmod 660 "$CONF_DIR/main.conf"
             echo "Создан конфиг: $CONF_DIR/main.conf — отредактируйте под своё железо."
         fi
 
         # Создать virtualenv и установить зависимости
         if [ ! -d "$VENV_DIR" ]; then
-            python3 -m venv "$VENV_DIR"
+            python3 -m venv --system-site-packages "$VENV_DIR"
+        elif [ -f "$VENV_DIR/pyvenv.cfg" ]; then
+            if grep -q '^include-system-site-packages = ' "$VENV_DIR/pyvenv.cfg"; then
+                sed -i 's/^include-system-site-packages = .*/include-system-site-packages = true/' "$VENV_DIR/pyvenv.cfg"
+            else
+                printf '\ninclude-system-site-packages = true\n' >> "$VENV_DIR/pyvenv.cfg"
+            fi
         fi
         "$VENV_DIR/bin/pip" install --quiet -r "$APP_DIR/requirements.txt"
 
         # Права доступа
         chown -R www-data:www-data "$APP_DIR"
         chown root:www-data "$CONF_DIR/main.conf"
+        chmod 660 "$CONF_DIR/main.conf"
 
         # Скрипт hotspot
         chmod +x /usr/local/bin/rpi2w-hotspot-fallback.sh
@@ -39,8 +59,10 @@ case "$1" in
 
         # Systemd
         systemctl daemon-reload
+        systemctl enable rpi2w-system-helper.service
         systemctl enable flask_site.service
         systemctl enable rpi2w-hotspot-fallback.timer
+        systemctl restart rpi2w-system-helper.service
         systemctl restart flask_site.service
         systemctl restart rpi2w-hotspot-fallback.timer
         systemctl reload nginx || true
