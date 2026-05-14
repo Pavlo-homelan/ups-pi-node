@@ -26,6 +26,7 @@ def build_service_config(app_config, config_manager):
     runtime_config.update(
         {
             "AUTH_MODE": env_or_config("UPS_PI_NODE_AUTH_MODE", config_manager.auth_mode),
+            "PAM_SERVICE": env_or_config("UPS_PI_NODE_PAM_SERVICE", config_manager.auth_pam_service),
             "SYSTEM_HELPER_SOCKET": env_or_config(
                 "UPS_PI_NODE_SYSTEM_HELPER_SOCKET",
                 config_manager.system_helper_socket,
@@ -37,6 +38,10 @@ def build_service_config(app_config, config_manager):
                 config_manager.wifi_hotspot_connection,
             ),
             "HOTSPOT_SSID": env_or_config("UPS_PI_NODE_HOTSPOT_SSID", config_manager.wifi_hotspot_ssid),
+            "HOTSPOT_PASSWORD": env_or_config(
+                "UPS_PI_NODE_HOTSPOT_PASSWORD",
+                config_manager.wifi_hotspot_password,
+            ),
             "HOTSPOT_ADDRESS": env_or_config(
                 "UPS_PI_NODE_HOTSPOT_ADDRESS",
                 config_manager.wifi_hotspot_address,

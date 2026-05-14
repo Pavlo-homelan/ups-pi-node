@@ -82,7 +82,7 @@ class WifiManager:
             backend=config.get("WIFI_BACKEND", "mock"),
             interface=config.get("WIFI_INTERFACE", "wlan0"),
             hotspot_connection_name=config.get("HOTSPOT_CONNECTION_NAME", "ups-pi-node-hotspot"),
-            hotspot_ssid=config.get("HOTSPOT_SSID", "ups-pi-node-setup"),
+            hotspot_ssid=config.get("HOTSPOT_SSID", "Ups-Node"),
             hotspot_address=config.get("HOTSPOT_ADDRESS", "10.42.0.1"),
             helper_socket=config.get("SYSTEM_HELPER_SOCKET", "/run/ups-pi-node/helper.sock"),
             portal_mode=config.get("PORTAL_MODE", "auto"),

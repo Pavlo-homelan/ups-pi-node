@@ -23,29 +23,91 @@ case "$1" in
                 printf 'UPS_PI_NODE_CONFIG_FILE=%s/main.conf\n' "$CONF_DIR"
                 printf 'UPS_PI_NODE_WIDGETS_DIR=%s\n' "$WIDGETS_DIR"
                 printf 'UPS_PI_NODE_DASHBOARD_WIDGETS_FILE=%s\n' "$DASHBOARD_WIDGETS_FILE"
+                printf 'UPS_PI_NODE_HOTSPOT_SSID=Ups-Node\n'
+                printf 'UPS_PI_NODE_HOTSPOT_PASSWORD=12345678\n'
             } > "$ENV_FILE"
             umask "$old_umask"
             chown root:www-data "$ENV_FILE"
             chmod 640 "$ENV_FILE"
             echo "Created environment file: $ENV_FILE"
+        else
+            if ! grep -q '^UPS_PI_NODE_HOTSPOT_SSID=' "$ENV_FILE"; then
+                printf 'UPS_PI_NODE_HOTSPOT_SSID=Ups-Node\n' >> "$ENV_FILE"
+            fi
+            if ! grep -q '^UPS_PI_NODE_HOTSPOT_PASSWORD=' "$ENV_FILE"; then
+                printf 'UPS_PI_NODE_HOTSPOT_PASSWORD=12345678\n' >> "$ENV_FILE"
+            fi
         fi
 
         if [ ! -f "$CONF_DIR/main.conf" ]; then
             cp "$CONF_DIR/main.conf.example" "$CONF_DIR/main.conf"
             chmod 660 "$CONF_DIR/main.conf"
             echo "Created config: $CONF_DIR/main.conf"
+        else
+            sed -i \
+                -e 's/^\([[:space:]]*relay_1_pin[[:space:]]*=[[:space:]]*\)23[[:space:]]*$/\127/' \
+                -e 's/^\([[:space:]]*relay_2_pin[[:space:]]*=[[:space:]]*\)24[[:space:]]*$/\122/' \
+                -e 's/^\([[:space:]]*battery_empty_voltage[[:space:]]*=[[:space:]]*\)10\.8[[:space:]]*$/\19.3/' \
+                -e 's/^\([[:space:]]*hotspot_ssid[[:space:]]*=[[:space:]]*\)ups-pi-node-setup[[:space:]]*$/\1Ups-Node/' \
+                "$CONF_DIR/main.conf"
+            if ! grep -q '^[[:space:]]*hotspot_password[[:space:]]*=' "$CONF_DIR/main.conf"; then
+                if grep -q '^\[wifi\]' "$CONF_DIR/main.conf"; then
+                    sed -i '/^\[wifi\]/a hotspot_password = 12345678' "$CONF_DIR/main.conf"
+                else
+                    printf '\n[wifi]\nhotspot_password = 12345678\n' >> "$CONF_DIR/main.conf"
+                fi
+            fi
+            if ! grep -q '^[[:space:]]*pam_service[[:space:]]*=' "$CONF_DIR/main.conf"; then
+                if grep -q '^\[auth\]' "$CONF_DIR/main.conf"; then
+                    sed -i '/^\[auth\]/a pam_service = ups-pi-node' "$CONF_DIR/main.conf"
+                else
+                    printf '\n[auth]\npam_service = ups-pi-node\n' >> "$CONF_DIR/main.conf"
+                fi
+            fi
+            if ! grep -q '^\[display\]' "$CONF_DIR/main.conf"; then
+                cat >> "$CONF_DIR/main.conf" <<'EOF'
+
+[display]
+enabled = true
+spi_port = 0
+spi_device = 0
+dc_pin = 24
+rst_pin = 25
+width = 160
+height = 128
+rotate = 1
+backlight_pin = 18
+bus_speed_hz = 0
+EOF
+            else
+                if ! grep -q '^[[:space:]]*backlight_pin[[:space:]]*=' "$CONF_DIR/main.conf"; then
+                    sed -i '/^\[display\]/a backlight_pin = 18' "$CONF_DIR/main.conf"
+                fi
+                if ! grep -q '^[[:space:]]*bus_speed_hz[[:space:]]*=' "$CONF_DIR/main.conf"; then
+                    sed -i '/^\[display\]/a bus_speed_hz = 0' "$CONF_DIR/main.conf"
+                fi
+            fi
         fi
 
         if [ ! -d "$VENV_DIR" ]; then
-            python3 -m venv --system-site-packages "$VENV_DIR"
+            python3 -m venv "$VENV_DIR"
         elif [ -f "$VENV_DIR/pyvenv.cfg" ]; then
             if grep -q '^include-system-site-packages = ' "$VENV_DIR/pyvenv.cfg"; then
-                sed -i 's/^include-system-site-packages = .*/include-system-site-packages = true/' "$VENV_DIR/pyvenv.cfg"
+                sed -i 's/^include-system-site-packages = .*/include-system-site-packages = false/' "$VENV_DIR/pyvenv.cfg"
             else
-                printf '\ninclude-system-site-packages = true\n' >> "$VENV_DIR/pyvenv.cfg"
+                printf '\ninclude-system-site-packages = false\n' >> "$VENV_DIR/pyvenv.cfg"
             fi
         fi
-        "$VENV_DIR/bin/pip" install --quiet -r "$APP_DIR/requirements.txt"
+
+        venv_site="$("$VENV_DIR/bin/python" -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])')"
+        if [ -d /usr/lib/python3/dist-packages ]; then
+            printf '/usr/lib/python3/dist-packages\n' > "$venv_site/ups_pi_node_debian_dist_packages.pth"
+        fi
+        if [ "${UPS_PI_NODE_INSTALL_PIP_REQUIREMENTS:-0}" = "1" ]; then
+            "$VENV_DIR/bin/pip" install --quiet --no-index -r "$APP_DIR/requirements.txt"
+        else
+            "$VENV_DIR/bin/python" -c 'import flask, gunicorn' >/dev/null
+        fi
 
         chown -R root:root "$APP_DIR"
         find "$APP_DIR" -type d -exec chmod 755 {} +
@@ -56,6 +118,8 @@ case "$1" in
         chmod 660 "$CONF_DIR/main.conf"
 
         chmod +x /usr/bin/ups-pi-node-hotspot-fallback
+        chmod +x /usr/bin/ups-pi-node-enable-buses
+        /usr/bin/ups-pi-node-enable-buses || true
 
         if [ -f /etc/nginx/sites-enabled/default ]; then
             rm -f /etc/nginx/sites-enabled/default

@@ -9,9 +9,12 @@ Environment="UPS_PI_NODE_SYSTEM_HELPER_SOCKET=/run/ups-pi-node/helper.sock"
 EnvironmentFile=-/etc/default/ups-pi-node
 RuntimeDirectory=ups-pi-node
 RuntimeDirectoryMode=0755
-ExecStart=/var/lib/ups-pi-node/.venv/bin/python /usr/lib/ups-pi-node/system_helper.py --socket ${UPS_PI_NODE_SYSTEM_HELPER_SOCKET} --socket-group www-data
+ExecStart=/var/lib/ups-pi-node/.venv/bin/python /usr/lib/ups-pi-node/system_helper.py --socket ${UPS_PI_NODE_SYSTEM_HELPER_SOCKET} --socket-group www-data --config /etc/ups-pi-node/main.conf
 Restart=always
 RestartSec=2
+TimeoutStopSec=5
+KillSignal=SIGTERM
+FinalKillSignal=SIGKILL
 
 [Install]
 WantedBy=multi-user.target

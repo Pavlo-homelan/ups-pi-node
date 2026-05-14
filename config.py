@@ -14,6 +14,7 @@ class Config:
     SESSION_COOKIE_SAMESITE = "Lax"
 
     AUTH_MODE = os.getenv("UPS_PI_NODE_AUTH_MODE", "mock")
+    PAM_SERVICE = os.getenv("UPS_PI_NODE_PAM_SERVICE", "ups-pi-node")
     PORTAL_USERNAME = os.getenv("UPS_PI_NODE_PORTAL_USERNAME", "ups-pi-admin")
     PORTAL_PASSWORD = os.getenv("UPS_PI_NODE_PORTAL_PASSWORD", "ups-pi-demo")
 
@@ -24,8 +25,8 @@ class Config:
     SYSTEM_HELPER_SOCKET = os.getenv("UPS_PI_NODE_SYSTEM_HELPER_SOCKET", "/run/ups-pi-node/helper.sock")
     WIFI_INTERFACE = os.getenv("UPS_PI_NODE_WIFI_INTERFACE", "wlan0")
     HOTSPOT_CONNECTION_NAME = os.getenv("UPS_PI_NODE_HOTSPOT_CONNECTION_NAME", "ups-pi-node-hotspot")
-    HOTSPOT_SSID = os.getenv("UPS_PI_NODE_HOTSPOT_SSID", "ups-pi-node-setup")
-    HOTSPOT_PASSWORD = os.getenv("UPS_PI_NODE_HOTSPOT_PASSWORD", "ups-pi-node-setup")
+    HOTSPOT_SSID = os.getenv("UPS_PI_NODE_HOTSPOT_SSID", "Ups-Node")
+    HOTSPOT_PASSWORD = os.getenv("UPS_PI_NODE_HOTSPOT_PASSWORD", "12345678")
     HOTSPOT_ADDRESS = os.getenv("UPS_PI_NODE_HOTSPOT_ADDRESS", "10.42.0.1")
     PORTAL_MODE = os.getenv("UPS_PI_NODE_PORTAL_MODE", "auto")
 
@@ -34,5 +35,5 @@ class Config:
     AC_PRESENT = os.getenv("UPS_PI_NODE_AC_PRESENT", "1")
     INA219_BUS_VOLTAGE = os.getenv("UPS_PI_NODE_INA219_BUS_VOLTAGE", "12.6")
     INA219_CURRENT_MA = os.getenv("UPS_PI_NODE_INA219_CURRENT_MA", "620")
-    BATTERY_EMPTY_VOLTAGE = os.getenv("UPS_PI_NODE_BATTERY_EMPTY_VOLTAGE", "10.8")
+    BATTERY_EMPTY_VOLTAGE = os.getenv("UPS_PI_NODE_BATTERY_EMPTY_VOLTAGE", "9.3")
     BATTERY_FULL_VOLTAGE = os.getenv("UPS_PI_NODE_BATTERY_FULL_VOLTAGE", "12.6")

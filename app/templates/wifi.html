@@ -16,6 +16,10 @@
 
     <p class="wifi-current">{{ t("wifi.current") }}: <b>{{ portal_status.connected_ssid or t("wifi.none") }}</b></p>
 
+    <form class="wifi-scan-form" method="get" action="{{ url_for('main.wifi_dashboard') }}">
+        <button type="submit" name="scan" value="1">{{ t("wifi.scan") }}</button>
+    </form>
+
     <form class="wifi-connect-form" method="post" action="{{ url_for('main.connect_wifi') }}">
         {% if scan_result and scan_result.networks %}
             <div class="network-window" role="radiogroup" aria-label="{{ t('wifi.networks_label') }}">

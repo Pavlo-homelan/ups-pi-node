@@ -12,6 +12,9 @@ class SystemHelperClient:
         self.timeout = timeout
 
     def request(self, action, params=None):
+        if not hasattr(socket, "AF_UNIX"):
+            raise SystemHelperError("Unix sockets are not available on this platform.")
+
         payload = json.dumps(
             {"action": action, "params": params or {}},
             ensure_ascii=False,

@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
 
+from .system_helper import SystemHelperClient, SystemHelperError
+
 
 @dataclass
 class RelayState:
@@ -23,6 +25,7 @@ class UpsSnapshot:
     load_source: str
     battery_route: str
     relays: list[RelayState] = field(default_factory=list)
+    error: str | None = None
 
     @property
     def mains_label(self):
@@ -79,6 +82,7 @@ class UpsManager:
         current_ma,
         battery_empty_voltage,
         battery_full_voltage,
+        system_helper_socket,
     ):
         self.backend = (backend or "mock").lower()
         self.ac_sensor_pin = ac_sensor_pin
@@ -87,6 +91,7 @@ class UpsManager:
         self.current_ma = current_ma
         self.battery_empty_voltage = battery_empty_voltage
         self.battery_full_voltage = battery_full_voltage
+        self.helper = SystemHelperClient(system_helper_socket)
 
     @classmethod
     def from_config(cls, config):
@@ -96,12 +101,57 @@ class UpsManager:
             ac_present=str(config.get("AC_PRESENT", "1")).strip().lower() not in {"0", "false", "no"},
             bus_voltage=float(config.get("INA219_BUS_VOLTAGE", "12.6")),
             current_ma=float(config.get("INA219_CURRENT_MA", "620")),
-            battery_empty_voltage=float(config.get("BATTERY_EMPTY_VOLTAGE", "10.8")),
+            battery_empty_voltage=float(config.get("BATTERY_EMPTY_VOLTAGE", "9.3")),
             battery_full_voltage=float(config.get("BATTERY_FULL_VOLTAGE", "12.6")),
+            system_helper_socket=config.get("SYSTEM_HELPER_SOCKET", "/run/ups-pi-node/helper.sock"),
         )
 
     def get_snapshot(self):
+        if self.backend in {"ina219", "hardware"}:
+            try:
+                return self._build_helper_snapshot(self.helper.request("ups.status"))
+            except SystemHelperError as exc:
+                snapshot = self._build_mock_snapshot()
+                snapshot.error = str(exc)
+                return snapshot
         return self._build_mock_snapshot()
+
+    def _build_helper_snapshot(self, data):
+        bus_voltage = float(data.get("v", 0.0))
+        current_ma = float(data.get("current_ma", data.get("i", 0.0)))
+        percent = int(data.get("percent", self._calculate_battery_percent(bus_voltage)))
+        battery_status = data.get("battery_status") or self._battery_status_label(percent)
+        mains_present = bool(data.get("ac", False))
+        relays = [
+            RelayState(
+                channel=int(item.get("channel", index + 1)),
+                name=item.get("name", f"Relay {index + 1}"),
+                position=item.get("position", "UNKNOWN"),
+                role=item.get("role", ""),
+                detail=item.get("detail", ""),
+            )
+            for index, item in enumerate(data.get("relays", []))
+        ]
+        return UpsSnapshot(
+            backend=data.get("backend", self.backend),
+            mains_present=mains_present,
+            ac_sensor_pin=str(data.get("ac_sensor_pin", self.ac_sensor_pin)),
+            bus_voltage=bus_voltage,
+            current_ma=current_ma,
+            power_w=float(data.get("power_w", bus_voltage * (current_ma / 1000.0))),
+            battery_percent=percent,
+            battery_status=battery_status,
+            load_source=data.get(
+                "load_source",
+                "UPS output to load" if mains_present else "Battery to load",
+            ),
+            battery_route=data.get(
+                "battery_route",
+                "Battery routed to charger" if mains_present else "Battery routed to load",
+            ),
+            relays=relays,
+            error=data.get("hardware_error"),
+        )
 
     def _build_mock_snapshot(self):
         mains_present = self.ac_present

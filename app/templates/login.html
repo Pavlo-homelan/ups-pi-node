@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ t("login.title") }}{% endblock %}
 {% block content %}
-<form method="post" class="card">
+<form method="post" action="{{ url_for('main.login') }}" class="card">
     <h2>{{ t("login.heading") }}</h2>
     {% with messages = get_flashed_messages() %}
       {% if messages %}{% for message in messages %}<p class="error">{{ message }}</p>{% endfor %}{% endif %}

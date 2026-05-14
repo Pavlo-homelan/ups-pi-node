@@ -3,8 +3,37 @@ set -euo pipefail
 
 WIFI_IFACE="${UPS_PI_NODE_WIFI_INTERFACE:-wlan0}"
 HOTSPOT_CONNECTION="${UPS_PI_NODE_HOTSPOT_CONNECTION_NAME:-ups-pi-node-hotspot}"
-HOTSPOT_SSID="${UPS_PI_NODE_HOTSPOT_SSID:-ups-pi-node-setup}"
-HOTSPOT_PASSWORD="${UPS_PI_NODE_HOTSPOT_PASSWORD:-ups-pi-node-setup-pass}"
+CONFIG_FILE="${UPS_PI_NODE_CONFIG_FILE:-/etc/ups-pi-node/main.conf}"
+
+read_ini_value() {
+    local file="$1"
+    local section="$2"
+    local key="$3"
+    awk -F= -v section="$section" -v key="$key" '
+        /^[[:space:]]*\[/ {
+            current=$0
+            gsub(/^[[:space:]]*\[/, "", current)
+            gsub(/\][[:space:]]*$/, "", current)
+            next
+        }
+        current == section {
+            name=$1
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", name)
+            if (name == key) {
+                value=$0
+                sub(/^[^=]*=/, "", value)
+                gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+                print value
+                exit
+            }
+        }
+    ' "$file" 2>/dev/null || true
+}
+
+CONFIG_HOTSPOT_SSID="$(read_ini_value "$CONFIG_FILE" wifi hotspot_ssid)"
+CONFIG_HOTSPOT_PASSWORD="$(read_ini_value "$CONFIG_FILE" wifi hotspot_password)"
+HOTSPOT_SSID="${CONFIG_HOTSPOT_SSID:-${UPS_PI_NODE_HOTSPOT_SSID:-Ups-Node}}"
+HOTSPOT_PASSWORD="${CONFIG_HOTSPOT_PASSWORD:-${UPS_PI_NODE_HOTSPOT_PASSWORD:-12345678}}"
 
 if ! command -v nmcli >/dev/null 2>&1; then
     echo "nmcli is required for fallback hotspot management" >&2
@@ -22,13 +51,15 @@ fi
 
 if ! nmcli connection show "$HOTSPOT_CONNECTION" >/dev/null 2>&1; then
     nmcli connection add type wifi ifname "$WIFI_IFACE" con-name "$HOTSPOT_CONNECTION" autoconnect no ssid "$HOTSPOT_SSID"
-    nmcli connection modify "$HOTSPOT_CONNECTION" \
-        802-11-wireless.mode ap \
-        802-11-wireless.band bg \
-        ipv4.method shared \
-        ipv6.method ignore \
-        wifi-sec.key-mgmt wpa-psk \
-        wifi-sec.psk "$HOTSPOT_PASSWORD"
 fi
+
+nmcli connection modify "$HOTSPOT_CONNECTION" \
+    802-11-wireless.ssid "$HOTSPOT_SSID" \
+    802-11-wireless.mode ap \
+    802-11-wireless.band bg \
+    ipv4.method shared \
+    ipv6.method ignore \
+    wifi-sec.key-mgmt wpa-psk \
+    wifi-sec.psk "$HOTSPOT_PASSWORD"
 
 nmcli connection up "$HOTSPOT_CONNECTION"

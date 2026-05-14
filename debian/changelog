@@ -1,5 +1,28 @@
-ups-pi-node (0.1.0) unstable; urgency=low
+ups-pi-node (0.2.1) trixie; urgency=medium
 
-  * Initial release (work in progress)
+  * Switch local package builds from timestamp versions to Debian revisions.
+  * Add manual Wi-Fi scan action to the portal.
+  * Restore ST7735 backlight control on GPIO18 and initialize it after the
+    display driver.
+  * Prevent system helper stop from deadlocking inside socketserver shutdown.
+  * Migrate existing node configs with the ST7735 display defaults.
+  * Hold the ST7735 backlight high using the same setup/output order as the
+    verified hardware test.
 
- -- Pavlo <pavlo@example.com>  Wed, 13 May 2026 00:00:00 +0000
+ -- Pavlo <pavlo@example.com>  Thu, 14 May 2026 14:20:00 +0300
+
+ups-pi-node (0.2.0) trixie; urgency=medium
+
+  * Restore hardware UPS control through the system helper service.
+  * Add ST7735 display support, helper-side PAM login, and hotspot password
+    settings.
+  * Enable Raspberry Pi I2C/SPI hardware buses during package setup.
+  * Package the app for Debian Trixie with venv-based Python dependencies.
+
+ -- Pavlo <pavlo@example.com>  Thu, 14 May 2026 13:30:00 +0300
+
+ups-pi-node (0.1.0) trixie; urgency=low
+
+  * Initial release for Raspberry Pi Zero 2 W on Debian Trixie armhf.
+
+ -- Pavlo <pavlo@example.com>  Thu, 14 May 2026 00:00:00 +0300

@@ -167,6 +167,9 @@ button:disabled { opacity: 0.5; cursor: default; }
 .battery-bar { height: 100%; transition: width 0.5s ease; }
 
 .wifi-current { margin: 0 0 10px; color: var(--muted); font-size: 0.85em; }
+.wifi-scan-form { margin: 0 0 10px; }
+.wifi-scan-form button { background: var(--surface-strong); border: 1px solid var(--border); color: var(--text); }
+.wifi-scan-form button:hover { background: var(--surface); }
 .network-window { height: 170px; margin: 10px 0; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); text-align: left; }
 .network-window.empty { display: flex; align-items: center; justify-content: center; }
 .network-row { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 10px; border-bottom: 1px solid var(--border); cursor: pointer; }

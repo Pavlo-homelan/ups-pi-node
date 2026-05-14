@@ -36,6 +36,13 @@
         <button type="submit">{{ t("system.language_apply") }}</button>
     </form>
 
+    <div class="system-section-title">{{ t("system.hotspot") }}</div>
+    <form method="post" action="{{ url_for('main.update_hotspot') }}">
+        <input type="text" name="hotspot_ssid" maxlength="32" value="{{ hotspot_ssid }}" placeholder="{{ t('system.hotspot_ssid') }}" required>
+        <input type="password" name="hotspot_password" minlength="8" maxlength="63" value="{{ hotspot_password }}" placeholder="{{ t('system.hotspot_password') }}" autocomplete="new-password" required>
+        <button type="submit">{{ t("system.hotspot_save") }}</button>
+    </form>
+
     <div class="system-section-title">{{ t("system.widget") }}</div>
     <select class="widget-style-select" name="widget_style" data-widget-style-select aria-label="{{ t('system.widget') }}">
         <optgroup label="{{ t('system.widget_builtin') }}">

@@ -9,7 +9,7 @@ Group=www-data
 WorkingDirectory=/usr/lib/ups-pi-node
 Environment="PATH=/var/lib/ups-pi-node/.venv/bin"
 EnvironmentFile=-/etc/default/ups-pi-node
-ExecStart=/var/lib/ups-pi-node/.venv/bin/gunicorn --config gunicorn.conf.py wsgi:app
+ExecStart=/var/lib/ups-pi-node/.venv/bin/python -m gunicorn --config gunicorn.conf.py wsgi:app
 Restart=always
 
 [Install]

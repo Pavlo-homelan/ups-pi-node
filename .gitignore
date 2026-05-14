@@ -11,6 +11,7 @@ instance/
 
 # Local preview/runtime artifacts
 .preview-*.log
+.preview-*.err
 .preview-*.pid
 .tmp_preview_server.py
 *.log
@@ -22,6 +23,12 @@ dist/
 *.deb
 *.buildinfo
 *.changes
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/files
+debian/*.substvars
+debian/md5sums
+debian/ups-pi-node/
 
 # Imported SD-card/reference dumps
 incoming-rpi-ups-version/

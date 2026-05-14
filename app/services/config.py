@@ -20,7 +20,7 @@ class ConfigManager:
 
     def load(self):
         if os.path.exists(self.config_path):
-            self._parser.read(self.config_path, encoding="utf-8")
+            self._parser.read(self.config_path, encoding="utf-8-sig")
 
     def save(self):
         os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
@@ -81,11 +81,11 @@ class ConfigManager:
 
     @property
     def gpio_relay_1_pin(self):
-        return self.getint("gpio", "relay_1_pin", fallback=23)
+        return self.getint("gpio", "relay_1_pin", fallback=27)
 
     @property
     def gpio_relay_2_pin(self):
-        return self.getint("gpio", "relay_2_pin", fallback=24)
+        return self.getint("gpio", "relay_2_pin", fallback=22)
 
     @property
     def gpio_relay_3_pin(self):
@@ -115,7 +115,11 @@ class ConfigManager:
 
     @property
     def wifi_hotspot_ssid(self):
-        return self.get("wifi", "hotspot_ssid", fallback="ups-pi-node-setup")
+        return self.get("wifi", "hotspot_ssid", fallback="Ups-Node")
+
+    @property
+    def wifi_hotspot_password(self):
+        return self.get("wifi", "hotspot_password", fallback="12345678")
 
     @property
     def wifi_hotspot_address(self):
@@ -137,7 +141,7 @@ class ConfigManager:
 
     @property
     def ups_battery_empty_voltage(self):
-        return self.getfloat("ups", "battery_empty_voltage", fallback=10.8)
+        return self.getfloat("ups", "battery_empty_voltage", fallback=9.3)
 
     @property
     def ups_battery_full_voltage(self):
@@ -148,3 +152,7 @@ class ConfigManager:
     @property
     def auth_mode(self):
         return self.get("auth", "mode", fallback="mock")
+
+    @property
+    def auth_pam_service(self):
+        return self.get("auth", "pam_service", fallback="ups-pi-node")

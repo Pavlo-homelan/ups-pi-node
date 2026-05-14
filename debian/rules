@@ -4,7 +4,7 @@
 	dh $@
 
 override_dh_auto_build:
-	# Dependencies are installed in postinst through pip in the runtime venv.
+	# Python runtime dependencies are installed into the app venv in postinst.
 
 override_dh_auto_install:
 	# Files are installed through debian/install.
@@ -13,3 +13,4 @@ override_dh_fixperms:
 	dh_fixperms
 	find debian/ups-pi-node/usr/lib/ups-pi-node -type f -exec chmod 0644 {} +
 	chmod +x debian/ups-pi-node/usr/bin/ups-pi-node-hotspot-fallback
+	chmod +x debian/ups-pi-node/usr/bin/ups-pi-node-enable-buses

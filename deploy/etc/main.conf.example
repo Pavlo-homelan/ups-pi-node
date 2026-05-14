@@ -24,20 +24,22 @@ helper_socket = /run/ups-pi-node/helper.sock
 
 [gpio]
 # GPIO pins in BCM numbering
-# Fill these values after your board revision is confirmed
+# Pins from the original working UPS controller
 ac_detect_pin = 17
-relay_1_pin = 23
-relay_2_pin = 24
+relay_1_pin = 27
+relay_2_pin = 22
 relay_3_pin = 25
 relay_4_pin = 8
 load_enable_pin = 7
+gpiochip = /dev/gpiochip0
 
 [wifi]
 # Backend: mock | helper
 backend = helper
 interface = wlan0
 hotspot_connection = ups-pi-node-hotspot
-hotspot_ssid = ups-pi-node-setup
+hotspot_ssid = Ups-Node
+hotspot_password = 12345678
 hotspot_address = 10.42.0.1
 # Portal mode: auto | ap | client
 portal_mode = auto
@@ -46,9 +48,33 @@ portal_mode = auto
 # Backend: mock | ina219
 backend = ina219
 ac_sensor_pin = AC_DETECT
-battery_empty_voltage = 10.8
+battery_empty_voltage = 9.3
 battery_full_voltage = 12.6
+i2c_bus = 1
+i2c_address = 0x40
+shunt_ohms = 0.1
+current_cutoff_ma = 150
+current_noise_floor_ma = 5
+low_voltage_shutdown_seconds = 20
+control_interval = 1
+switch_delay_seconds = 0.05
+
+[display]
+# ST7735 TFT from the original working controller
+enabled = true
+spi_port = 0
+spi_device = 0
+dc_pin = 24
+rst_pin = 25
+width = 160
+height = 128
+rotate = 1
+# TFT LED/BLK is wired to Raspberry Pi physical pin 12, BCM GPIO18.
+backlight_pin = 18
+# Leave 0 for luma defaults. Useful for debugging weak wiring/noisy SPI.
+bus_speed_hz = 0
 
 [auth]
 # Auth mode: mock | env | pam
 mode = pam
+pam_service = ups-pi-node

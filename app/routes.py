@@ -261,8 +261,10 @@ def require_integrations_access():
         abort(403)
 
 
-@main.get("/")
+@main.route("/", methods=["GET", "POST"])
 def index():
+    if request.method == "POST":
+        return login()
     if session.get("authenticated"):
         return redirect(url_for("main.dashboard"))
     return render_login_page()
@@ -474,6 +476,33 @@ def update_language():
     return redirect(url_for("main.system"))
 
 
+@main.post("/system/hotspot")
+@login_required
+def update_hotspot():
+    ssid = request.form.get("hotspot_ssid", "").strip()
+    password = request.form.get("hotspot_password", "")
+
+    if not ssid:
+        flash_t("flash.hotspot_ssid_invalid", "error")
+        return redirect(url_for("main.system"))
+    if len(ssid.encode("utf-8")) > 32:
+        flash_t("flash.hotspot_ssid_too_long", "error")
+        return redirect(url_for("main.system"))
+    if not 8 <= len(password) <= 63:
+        flash_t("flash.hotspot_password_invalid", "error")
+        return redirect(url_for("main.system"))
+
+    config = get_config_manager()
+    try:
+        config.set("wifi", "hotspot_ssid", ssid)
+        config.set("wifi", "hotspot_password", password)
+        config.save()
+        flash_t("flash.hotspot_saved", "success")
+    except OSError as exc:
+        flash_t("flash.settings_error", "error", error=exc)
+    return redirect(url_for("main.system"))
+
+
 @main.route("/system", methods=["GET", "POST"])
 @login_required
 def system():
@@ -497,6 +526,8 @@ def system():
         "portal_status": get_wifi_manager().get_status(),
         "timeout_1": config.load_timeout_1,
         "timeout_2": config.load_timeout_2,
+        "hotspot_ssid": config.wifi_hotspot_ssid,
+        "hotspot_password": config.wifi_hotspot_password,
         "ui_language": config.ui_language,
         "active_dashboard_widgets": get_dashboard_widget_manager().list_active(),
         "available_dashboard_widgets": get_dashboard_widget_manager().list_available(),

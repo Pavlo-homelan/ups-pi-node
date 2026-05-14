@@ -5,12 +5,14 @@ gunicorn.conf.py                                usr/lib/ups-pi-node/
 requirements.txt                                usr/lib/ups-pi-node/
 system_helper.py                                usr/lib/ups-pi-node/
 deploy/etc/main.conf.example                    etc/ups-pi-node/
+deploy/pam/ups-pi-node                          etc/pam.d/
 deploy/nginx/ups-pi-node                        etc/nginx/sites-available/
 deploy/systemd/ups-pi-node.service              usr/lib/systemd/system/
 deploy/systemd/ups-pi-node-helper.service       usr/lib/systemd/system/
 deploy/systemd/ups-pi-node-hotspot-fallback.service usr/lib/systemd/system/
 deploy/systemd/ups-pi-node-hotspot-fallback.timer usr/lib/systemd/system/
 deploy/scripts/ups-pi-node-hotspot-fallback     usr/bin/
+deploy/scripts/ups-pi-node-enable-buses         usr/bin/
 deploy/zabbix/ups-pi-node-agent.conf            usr/share/doc/ups-pi-node/examples/zabbix/
 docs/integrations.md                            usr/share/doc/ups-pi-node/
 docs/widgets.md                                 usr/share/doc/ups-pi-node/

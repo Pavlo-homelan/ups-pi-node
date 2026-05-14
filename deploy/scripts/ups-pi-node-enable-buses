@@ -1,0 +1,108 @@
+#!/bin/sh
+set -u
+
+log() {
+    printf '%s\n' "$*"
+}
+
+read_model() {
+    for model_file in /proc/device-tree/model /sys/firmware/devicetree/base/model; do
+        if [ -r "$model_file" ]; then
+            tr -d '\000' < "$model_file"
+            return 0
+        fi
+    done
+    return 1
+}
+
+is_raspberry_pi() {
+    model="$(read_model 2>/dev/null || true)"
+    printf '%s' "$model" | grep -qi 'raspberry pi'
+}
+
+find_boot_config() {
+    for config_file in /boot/firmware/config.txt /boot/config.txt; do
+        if [ -f "$config_file" ]; then
+            printf '%s\n' "$config_file"
+            return 0
+        fi
+    done
+    return 1
+}
+
+mark_reboot_required() {
+    if [ -d /run ]; then
+        touch /run/reboot-required 2>/dev/null || true
+        if ! grep -qx 'ups-pi-node' /run/reboot-required.pkgs 2>/dev/null; then
+            printf 'ups-pi-node\n' >> /run/reboot-required.pkgs 2>/dev/null || true
+        fi
+    fi
+}
+
+ensure_dtparam_on() {
+    key="$1"
+    config_file="$2"
+    desired="dtparam=${key}=on"
+
+    if grep -Eq "^[[:space:]]*dtparam=${key}=on([[:space:]]*(#.*)?)?$" "$config_file"; then
+        return 0
+    fi
+
+    if grep -Eq "^[[:space:]]*#?[[:space:]]*dtparam=${key}=" "$config_file"; then
+        sed -i "s|^[[:space:]]*#\?[[:space:]]*dtparam=${key}=.*|${desired}|" "$config_file" || return 1
+    else
+        {
+            printf '\n# Enabled by ups-pi-node for UPS hardware buses\n'
+            printf '%s\n' "$desired"
+        } >> "$config_file" || return 1
+    fi
+
+    BUS_REBOOT_REQUIRED=1
+    log "Enabled ${desired} in ${config_file}"
+    return 0
+}
+
+write_modules_load() {
+    modules_file="/etc/modules-load.d/ups-pi-node.conf"
+    mkdir -p /etc/modules-load.d || return 0
+    {
+        printf '# Loaded by ups-pi-node for INA219 and ST7735 hardware access\n'
+        printf 'i2c-dev\n'
+        printf 'i2c-bcm2835\n'
+        printf 'spi-bcm2835\n'
+    } > "$modules_file" || return 0
+}
+
+load_modules_now() {
+    if ! command -v modprobe >/dev/null 2>&1; then
+        return 0
+    fi
+
+    for module in i2c-dev i2c-bcm2835 spi-bcm2835; do
+        modprobe "$module" 2>/dev/null || true
+    done
+}
+
+if ! is_raspberry_pi && [ "${UPS_PI_NODE_FORCE_BUS_SETUP:-0}" != "1" ]; then
+    log "ups-pi-node: Raspberry Pi hardware was not detected; skipping bus setup."
+    exit 0
+fi
+
+BUS_REBOOT_REQUIRED=0
+boot_config="$(find_boot_config 2>/dev/null || true)"
+if [ -n "$boot_config" ]; then
+    ensure_dtparam_on i2c_arm "$boot_config" || log "ups-pi-node: could not enable I2C in $boot_config"
+    ensure_dtparam_on spi "$boot_config" || log "ups-pi-node: could not enable SPI in $boot_config"
+else
+    log "ups-pi-node: Raspberry Pi boot config was not found; I2C/SPI overlays were not changed."
+fi
+
+write_modules_load
+load_modules_now
+
+if [ "$BUS_REBOOT_REQUIRED" = "1" ]; then
+    mark_reboot_required
+    log "ups-pi-node: reboot is required before I2C/SPI device nodes appear reliably."
+fi
+
+exit 0

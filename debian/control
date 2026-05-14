@@ -7,8 +7,14 @@ Standards-Version: 4.6.2
 
 Package: ups-pi-node
 Architecture: all
-Depends: python3 (>= 3.11),
+Depends: ${misc:Depends},
+         python3 (>= 3.11),
          python3-venv,
+         python3-flask (>= 3.0),
+         gunicorn (>= 22.0),
+         python3-libgpiod,
+         python3-smbus2,
+         python3-luma.lcd,
          nginx,
          network-manager,
          python3-pam
