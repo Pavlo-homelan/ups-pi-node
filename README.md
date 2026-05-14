@@ -1,5 +1,7 @@
 # ups-pi-node
 
+![ups-pi-node banner](assets/ups-pi-node-banner.png)
+
 `ups-pi-node` is a small web-managed UPS node for Raspberry Pi hardware. It monitors UPS state, exposes a local browser UI, manages Wi-Fi setup, and can raise a fallback hotspot when the device is not connected to a known network.
 
 The project is especially useful for DIY power projects, home labs, and custom

@@ -22,12 +22,13 @@
         .container { width: 100%; display: flex; flex: 1 0 auto; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
         .auth-page .container { flex: initial; padding: 0; }
         .page-header, .page-footer { width: 100%; flex: 0 0 auto; box-sizing: border-box; }
-        .page-header { position: relative; display: flex; justify-content: center; padding: 14px 20px 10px; border-bottom: 1px solid var(--page-line); }
+        .page-header { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 440px) minmax(0, 1fr); grid-template-areas: "brand tabs actions"; align-items: start; gap: 10px 16px; padding: 14px 20px 10px; border-bottom: 1px solid var(--page-line); }
         .page-header-inner { width: 440px; max-width: calc(100vw - 40px); display: grid; gap: 10px; }
-        .page-brand { display: flex; justify-content: flex-start; align-items: baseline; gap: 8px; color: var(--text); text-decoration: none; }
+        .page-brand { grid-area: brand; display: flex; justify-self: start; align-items: center; min-width: 0; min-height: 42px; gap: 8px; color: var(--text); text-decoration: none; }
         .page-brand-main { font-weight: bold; }
         .page-brand-sub { color: var(--muted); font-size: 0.85em; }
-        .header-actions { position: absolute; top: 14px; right: 20px; display: flex; align-items: center; gap: 10px; font-size: 0.85em; }
+        .page-tabs { grid-area: tabs; width: min(440px, 100%); justify-self: center; }
+        .header-actions { grid-area: actions; display: flex; justify-self: end; align-items: center; gap: 10px; min-height: 42px; font-size: 0.85em; }
         .header-user { color: var(--muted); }
         .header-logout { width: auto; padding: 6px 10px; background: transparent; border: 1px solid var(--danger-border); color: var(--red); font-size: 1em; }
         .page-footer { padding: 10px 20px 14px; border-top: 1px solid var(--page-line); color: var(--muted-soft); font-size: 0.8em; text-align: center; }
@@ -42,8 +43,9 @@
         .DISCHARGE { color: var(--red); }
         .CHARGED { color: var(--green); }
         @media (max-width: 720px) {
-            .page-header { display: grid; gap: 10px; }
-            .header-actions { position: static; justify-content: center; }
+            .page-header { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "brand actions" "tabs tabs"; align-items: center; gap: 10px; }
+            .page-brand, .header-actions { min-height: auto; }
+            .page-tabs { width: 100%; max-width: none; }
         }
     </style>
 </head>
